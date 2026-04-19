@@ -1,0 +1,161 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "searxng"
+dynamic = ["version"]
+description = "SearXNG is a metasearch engine. Users are neither tracked nor profiled."
+readme = "README.rst"
+license = {text = "AGPL-3.0-or-later"}
+authors = [
+    {name = "SearXNG", email = "contact@searxng.org"},
+]
+requires-python = ">=3.11"
+keywords = ["metasearch", "searchengine", "search", "web", "http"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Topic :: Internet",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Programming Language :: Python :: 3",
+
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+    "certifi==2026.2.25",
+    "babel==2.18.0",
+    "flask-babel==4.0.0",
+    "flask==3.1.3",
+    "jinja2==3.1.6",
+    "lxml==6.0.4",
+    "pygments==2.20.0",
+    "python-dateutil==2.9.0.post0",
+    "pyyaml==6.0.3",
+    "httpx[http2]==0.28.1",
+    "httpx-socks[asyncio]==0.10.0",
+    "sniffio==1.3.1",
+    "valkey==6.1.1",
+    "markdown-it-py==4.0.0",
+    "msgspec==0.21.1",
+    "typer==0.24.1",
+    "isodate==0.7.2",
+    "whitenoise==6.12.0",
+    "typing-extensions==4.15.0",
+]
+
+[project.optional-dependencies]
+server = [
+    "granian==2.7.3",
+    "granian[pname]==2.7.3",
+]
+
+[project.scripts]
+searxng-run = "searx.webapp:run"
+
+[project.urls]
+Code = "https://github.com/searxng/searxng"
+Documentation = "https://docs.searxng.org"
+"Issue tracker" = "https://github.com/searxng/searxng/issues"
+
+[tool.hatch.version]
+path = "searx/version.py"
+pattern = 'VERSION_TAG: str = "(?P<version>[^"]+)"'
+
+[tool.hatch.build.targets.wheel]
+packages = ["searx"]
+
+[tool.hatch.build.targets.wheel.force-include]
+"searx/settings.yml" = "searx/settings.yml"
+"searx/data" = "searx/data"
+"searx/favicons" = "searx/favicons"
+"searx/infopage" = "searx/infopage"
+"searx/static" = "searx/static"
+"searx/templates" = "searx/templates"
+"searx/translations" = "searx/translations"
+
+[dependency-groups]
+dev = [
+    "mock==5.2.0",
+    "nose2[coverage_plugin]==0.16.0",
+    "cov-core==1.15.0",
+    "black==25.9.0",
+    "pylint==4.0.5",
+    "splinter==0.21.0",
+    "selenium==4.43.0",
+    "Pallets-Sphinx-Themes==2.5.0",
+    "Sphinx==8.2.3",
+    "sphinx-issues==6.0.0",
+    "sphinx-jinja==2.0.2",
+    "sphinx-tabs==3.5.0",
+    "sphinxcontrib-programoutput==0.19",
+    "sphinx-autobuild==2025.8.25",
+    "sphinx-notfound-page==1.1.0",
+    "myst-parser==5.0.0",
+    "linuxdoc==20240924",
+    "aiounittest==1.5.0",
+    "yamllint==1.38.0",
+    "wlc==1.17.2",
+    "coloredlogs==15.0.1",
+    "docutils>=0.21.2",
+    "parameterized==0.9.0",
+    "granian[reload]==2.7.3",
+    "basedpyright==1.39.2",
+    "types-lxml==2026.2.16",
+]
+
+[tool.uv]
+default-groups = ["dev"]
+
+[tool.black]
+target-version = ['py310', 'py311', 'py312', 'py313']
+include = 'searxng|searx|tests'
+skip-string-normalization = true
+
+[tool.pylint.main]
+jobs = 0
+load-plugins = "pylint.extensions.no_self_use"
+
+[tool.pylint.messages_control]
+disable = """
+C,R,
+fixme,
+missing-module-docstring,
+missing-class-docstring,
+missing-function-docstring,
+"""
+
+[tool.pylint.format]
+max-line-length = 140
+
+[tool.pylint.reports]
+output-format = "colorized"
+
+[tool.pylint.design]
+max-args = 10
+max-locals = 40
+max-branches = 30
+max-statements = 100
+max-parents = 10
+max-attributes = 15
+
+[tool.pylint.similarities]
+min-similarity-lines = 10
+
+[tool.pyright]
+include = ["searx"]
+exclude = ["**/__pycache__", "searx/static"]
+pythonVersion = "3.10"
+strict = ["searx"]
+reportMissingTypeStubs = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnnecessaryIsInstance = false
+reportPrivateUsage = false
+reportUninitializedInstanceVariable = false

@@ -43,10 +43,16 @@ jobs:
         with:
           persist-credentials: "false"
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@4a591a9f5e8ae079e2a7882d3d89e05b9b33e8c8  # v6.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
       - name: Setup cache Python
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
-          key: "python-${{ matrix.python-version }}-${{ runner.arch }}-${{ hashFiles('./requirements*.txt') }}"
+          key: "python-${{ matrix.python-version }}-${{ runner.arch }}-${{ hashFiles('./uv.lock') }}"
           restore-keys: |
             python-${{ matrix.python-version }}-${{ runner.arch }}-
           path: "./local/"
@@ -82,10 +88,16 @@ jobs:
           key: "nodejs-${{ runner.arch }}-${{ hashFiles('./.nvmrc', './package.json') }}"
           path: "./client/simple/node_modules/"
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@4a591a9f5e8ae079e2a7882d3d89e05b9b33e8c8  # v6.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
       - name: Setup cache Python
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
-          key: "python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-${{ hashFiles('./requirements*.txt') }}"
+          key: "python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-${{ hashFiles('./uv.lock') }}"
           restore-keys: |
             python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-
           path: "./local/"

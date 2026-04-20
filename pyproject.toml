@@ -54,6 +54,16 @@ server = [
     "granian==2.7.3",
     "granian[pname]==2.7.3",
 ]
+test = [
+    "mock==5.2.0",
+    "nose2[coverage_plugin]==0.16.0",
+    "cov-core==1.15.0",
+    "splinter==0.21.0",
+    "selenium==4.43.0",
+    "aiounittest==1.5.0",
+    "parameterized==0.9.0",
+    "granian[reload]==2.7.3",
+]
 
 [project.scripts]
 searxng-run = "searx.webapp:run"
@@ -113,7 +123,7 @@ dev = [
 default-groups = ["dev"]
 
 [tool.black]
-target-version = ['py310', 'py311', 'py312', 'py313']
+target-version = ['py311', 'py312', 'py313']
 include = 'searxng|searx|tests'
 skip-string-normalization = true
 
@@ -150,7 +160,7 @@ min-similarity-lines = 10
 [tool.pyright]
 include = ["searx"]
 exclude = ["**/__pycache__", "searx/static"]
-pythonVersion = "3.10"
+pythonVersion = "3.11"
 strict = ["searx"]
 reportMissingTypeStubs = false
 reportUnknownParameterType = false

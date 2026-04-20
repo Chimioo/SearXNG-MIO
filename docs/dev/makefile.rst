@@ -55,30 +55,29 @@ Python environment (``make install``)
 
 We do no longer need to build up the virtualenv manually.  Jump into your git
 working tree and release a ``make install`` to get a virtualenv with a
-*developer install* of SearXNG (:origin:`setup.py`). ::
+*developer install* of SearXNG (:origin:`pyproject.toml`). ::
 
    $ cd ~/searxng-clone
    $ make install
-   PYENV     [virtualenv] installing ./requirements*.txt into local/py3
+   PYENV     [virtualenv] creating uv venv at local/py3
    ...
-   PYENV     [install] pip install --use-pep517 --no-build-isolation -e 'searx[test]'
+   PYENV     [install] uv pip install -e '.[test]'
    ...
    Successfully installed searxng-2023.7.19+a446dea1b
 
 If you release ``make install`` multiple times the installation will only
-rebuild if the sha256 sum of the *requirement files* fails.  With other words:
-the check fails if you edit the requirements listed in
-:origin:`requirements-dev.txt` and :origin:`requirements.txt`). ::
+rebuild if the sha256 sum of the *uv.lock file* fails.  With other words:
+the check fails if you edit the dependencies listed in
+:origin:`pyproject.toml` and the lockfile is updated). ::
 
    $ make install
    PYENV     OK
-   PYENV     [virtualenv] requirements.sha256 failed
-             [virtualenv] - 6cea6eb6def9e14a18bf32f8a3e...  ./requirements-dev.txt
-             [virtualenv] - 471efef6c73558e391c3adb35f4...  ./requirements.txt
+   PYENV     [virtualenv] uv.lock.sha256 failed
+             [virtualenv] - 6cea6eb6def9e14a18bf32f8a3e...  ./uv.lock
    ...
-   PYENV     [virtualenv] installing ./requirements*.txt into local/py3
+   PYENV     [virtualenv] creating uv venv at local/py3
    ...
-   PYENV     [install] pip install --use-pep517 --no-build-isolation -e 'searx[test]'
+   PYENV     [install] uv pip install -e '.[test]'
    ...
    Successfully installed searxng-2023.7.19+a446dea1b
 

@@ -91,13 +91,8 @@ container.build() {
         info_msg "Set \$GIT_URL: $GIT_URL"
 
         # change cmp to lockfile when available
-        timestamp_requirements_main=$(git log -1 --format='%ct' ./requirements.txt)
-        timestamp_requirements_server=$(git log -1 --format='%ct' ./requirements-server.txt)
-        if [[ "$timestamp_requirements_main" -ge "$timestamp_requirements_server" ]]; then
-            timestamp_venv="$timestamp_requirements_main"
-        else
-            timestamp_venv="$timestamp_requirements_server"
-        fi
+        timestamp_uv_lock=$(git log -1 --format='%ct' ./uv.lock)
+        timestamp_venv="$timestamp_uv_lock"
 
         timestamp_searx_settings=$(git log -1 --format='%ct' ./searx/settings.yml)
 

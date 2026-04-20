@@ -83,10 +83,16 @@ jobs:
           persist-credentials: "false"
           fetch-depth: "0"
 
+      - name: Setup uv
+        uses: astral-sh/setup-uv@4a591a9f5e8ae079e2a7882d3d89e05b9b33e8c8  # v6.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
       - name: Setup cache Python
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
-          key: "python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-${{ hashFiles('./requirements*.txt') }}"
+          key: "python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-${{ hashFiles('./uv.lock') }}"
           restore-keys: |
             python-${{ env.PYTHON_VERSION }}-${{ runner.arch }}-
           path: "./local/"
@@ -98,7 +104,7 @@ jobs:
       - name: Setup cache container
         uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
         with:
-          key: "container-${{ matrix.arch }}-${{ steps.date.outputs.date }}-${{ hashFiles('./requirements*.txt') }}"
+          key: "container-${{ matrix.arch }}-${{ steps.date.outputs.date }}-${{ hashFiles('./uv.lock') }}"
           restore-keys: |
             container-${{ matrix.arch }}-${{ steps.date.outputs.date }}-
             container-${{ matrix.arch }}-

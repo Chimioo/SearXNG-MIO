@@ -488,15 +488,9 @@ EOF
     wait_key
     info_msg "install needed python packages"
     tee_stderr 0.1 <<EOF | sudo -H -u "${SERVICE_USER}" -i 2>&1 | prefix_stdout "$_service_prefix"
-pip install -U pip
-pip install -U setuptools
-pip install -U wheel
-pip install -U pyyaml
-pip install -U msgspec
-pip install -U typing-extensions
-pip install -U pybind11
+uv pip install -U pip setuptools wheel pyyaml msgspec typing-extensions pybind11
 cd ${SEARXNG_SRC}
-pip install --use-pep517 --no-build-isolation -e .
+uv pip install -e .
 EOF
 }
 
@@ -551,14 +545,7 @@ searxng.instance.update() {
 cd ${SEARXNG_SRC}
 git fetch origin "$GIT_BRANCH"
 git reset --hard "origin/$GIT_BRANCH"
-pip install -U pip
-pip install -U setuptools
-pip install -U wheel
-pip install -U pyyaml
-pip install -U msgspec
-pip install -U typing-extensions
-pip install -U pybind11
-pip install -U --use-pep517 --no-build-isolation -e .
+uv pip install -U --python "${SEARXNG_PYENV}/bin/python" -e .
 EOF
     rst_para "update instance's settings.yml from ${SEARXNG_SETTINGS_PATH}"
     DEFAULT_SELECT=2 \

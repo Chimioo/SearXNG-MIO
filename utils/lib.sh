@@ -552,7 +552,6 @@ PY="${PY:=3}"
 PYTHON="${PYTHON:=python$PY}"
 PY_ENV="${PY_ENV:=local/py${PY}}"
 PY_ENV_BIN="${PY_ENV}/bin"
-PY_ENV_REQ="${PY_ENV_REQ:=${REPO_ROOT}/requirements*.txt}"
 
 # List of python packages (folders) or modules (files) installed by command:
 # pyenv.install
@@ -565,45 +564,34 @@ PYDIST="${PYDIST:=dist}"
 PYBUILD="${PYBUILD:=build/py${PY}}"
 
 # https://www.python.org/dev/peps/pep-0508/#extras
-#PY_SETUP_EXTRAS='[develop,test]'
-PY_SETUP_EXTRAS="${PY_SETUP_EXTRAS:=[develop,test]}"
-
-PIP_BOILERPLATE=(pip wheel setuptools)
+#PY_SETUP_EXTRAS='[test]'
+PY_SETUP_EXTRAS="${PY_SETUP_EXTRAS:=[test]}"
 
 # shellcheck disable=SC2120
 pyenv() {
 
     # usage:  pyenv [vtenv_opts ...]
     #
-    #   vtenv_opts: see 'pip install --help'
+    #   vtenv_opts: see 'uv venv --help'
     #
-    # Builds virtualenv with 'requirements*.txt' (PY_ENV_REQ) installed.  The
-    # virtualenv will be reused by validating sha256sum of the requirement
-    # files.
+    # Builds virtualenv with uv using pyproject.toml. The virtualenv will be
+    # reused by validating the uv.lock file.
 
     required_commands \
-        sha256sum "${PYTHON}" ||
+        sha256sum "${PYTHON}" uv ||
         exit
 
-    local pip_req=()
-
     if ! pyenv.OK >/dev/null; then
-        rm -f "${PY_ENV}/${PY_ENV_REQ}.sha256"
+        rm -f "${PY_ENV}/uv.lock.sha256"
         pyenv.drop >/dev/null
-        build_msg PYENV "[virtualenv] installing ${PY_ENV_REQ} into ${PY_ENV}"
+        build_msg PYENV "[virtualenv] creating uv venv at ${PY_ENV}"
 
-        "${PYTHON}" -m venv "$@" "${PY_ENV}"
-        "${PY_ENV_BIN}/python" -m pip install -U "${PIP_BOILERPLATE[@]}"
-
-        for i in ${PY_ENV_REQ}; do
-            pip_req=("${pip_req[@]}" "-r" "$i")
-        done
+        uv venv "$@" "${PY_ENV}"
 
         (
             [ "$VERBOSE" = "1" ] && set -x
-            # shellcheck disable=SC2086
-            "${PY_ENV_BIN}/python" -m pip install "${pip_req[@]}" &&
-                sha256sum ${PY_ENV_REQ} >"${PY_ENV}/requirements.sha256"
+            uv pip install --python "${PY_ENV_BIN}/python" -e ".${PY_SETUP_EXTRAS}" &&
+                sha256sum "${REPO_ROOT}/uv.lock" >"${PY_ENV}/uv.lock.sha256"
         )
     fi
     pyenv.OK
@@ -621,10 +609,10 @@ pyenv.OK() {
         return 1
     fi
 
-    if [ ! -f "${PY_ENV}/requirements.sha256" ] ||
-        ! sha256sum -c "${PY_ENV}/requirements.sha256" >/dev/null 2>&1; then
-        build_msg PYENV "[virtualenv] requirements.sha256 failed"
-        sed 's/^/          [virtualenv] - /' <"${PY_ENV}/requirements.sha256"
+    if [ ! -f "${PY_ENV}/uv.lock.sha256" ] ||
+        ! sha256sum -c "${PY_ENV}/uv.lock.sha256" >/dev/null 2>&1; then
+        build_msg PYENV "[virtualenv] uv.lock.sha256 failed"
+        sed 's/^/          [virtualenv] - /' <"${PY_ENV}/uv.lock.sha256"
         return 1
     fi
 
@@ -661,14 +649,8 @@ pyenv.check() {
     # if virtualenv is ready to install python objects.  This function should be
     # overwritten by the application script.
 
-    local imp=""
-
-    for i in "${PIP_BOILERPLATE[@]}"; do
-        imp="$imp, $i"
-    done
-
     cat <<EOF
-import ${imp#,*}
+import yaml
 
 EOF
 }
@@ -684,8 +666,8 @@ pyenv.install() {
             pyenv
         fi
         for i in ${PYOBJECTS}; do
-            build_msg PYENV "[install] pip install --use-pep517 --no-build-isolation -e '$i${PY_SETUP_EXTRAS}'"
-            "${PY_ENV_BIN}/python" -m pip install --use-pep517 --no-build-isolation -e "$i${PY_SETUP_EXTRAS}"
+            build_msg PYENV "[install] uv pip install -e '$i${PY_SETUP_EXTRAS}'"
+            uv pip install --python "${PY_ENV_BIN}/python" -e "$i${PY_SETUP_EXTRAS}"
         done
     fi
     pyenv.install.OK
@@ -731,7 +713,7 @@ pyenv.uninstall() {
             prefix_stdout "${_Blue}PYENV     ${_creset}[pyenv.uninstall] "
     else
         # shellcheck disable=SC2086
-        pyenv.cmd python -m pip uninstall --yes ${PYOBJECTS} 2>&1 |
+        uv pip uninstall --python "${PY_ENV_BIN}/python" ${PYOBJECTS} 2>&1 |
             prefix_stdout "${_Blue}PYENV     ${_creset}[pyenv.uninstall] "
     fi
 }

@@ -258,6 +258,9 @@ plugins:
   searx.plugins.tracker_url_remover.SXNGPlugin:
     active: true
 
+  searx.plugins.hoshimi_collector.SXNGPlugin:
+    active: true
+
 
 # Configuration of the "Hostnames plugin":
 #
@@ -1062,6 +1065,104 @@ engines:
   - name: google videos
     engine: google_videos
     shortcut: gov
+
+  # Hoshimi - Vector-based cached search engine
+  # Option 1: Single instance with multiple categories (searches all categories)
+  - name: hoshimi
+    engine: hoshimi
+    shortcut: hs
+    categories: [general, images, videos, news, music]
+    weight: 2
+    disabled: false
+    # Hoshimi vector search configuration
+    hoshimi:
+      # Search mode: "vector" (semantic), "keyword" (text match), or "hybrid" (both combined)
+      search_mode: "hybrid"
+      # For hybrid mode: weight for vector score (0.7 = 70% vector, 30% keyword)
+      vector_weight: 0.3
+      # Embedding model for vectorization
+      embedding_model: "intfloat/multilingual-e5-small"
+      # Milvus Lite database path
+      milvus_uri: "./data/hoshimi.milvus"
+      # Maximum results to return per search
+      top_k: 20
+      # Minimum similarity threshold (0-1) for vector search
+      similarity_threshold: 0.6
+      # Embedding dimension (auto-detected from model, but can override)
+      embedding_dim: 384
+      # Source engine weights (higher = more influential in ranking)
+      source_weights:
+        google: 3
+        bing: 2
+        duckduckgo: 3
+        brave: 3
+        startpage: 3
+        # Default weight for engines not listed: 1
+
+  # Option 2: Multiple instances for specific categories (uncomment to use)
+  # - name: hoshimi images
+  #   engine: hoshimi
+  #   shortcut: hsi
+  #   categories: [images]
+  #   weight: 2
+  #   disabled: true
+  #   hoshimi:
+  #     category_filter: images
+  #     search_mode: "hybrid"
+  #     vector_weight: 0.3
+  #     embedding_model: "intfloat/multilingual-e5-small"
+  #     milvus_uri: "./data/hoshimi.milvus"
+  #     top_k: 20
+  #     similarity_threshold: 0.6
+  #     embedding_dim: 384
+
+  # - name: hoshimi videos
+  #   engine: hoshimi
+  #   shortcut: hsv
+  #   categories: [videos]
+  #   weight: 2
+  #   disabled: true
+  #   hoshimi:
+  #     category_filter: videos
+  #     search_mode: "hybrid"
+  #     vector_weight: 0.3
+  #     embedding_model: "intfloat/multilingual-e5-small"
+  #     milvus_uri: "./data/hoshimi.milvus"
+  #     top_k: 20
+  #     similarity_threshold: 0.6
+  #     embedding_dim: 384
+
+  # - name: hoshimi news
+  #   engine: hoshimi
+  #   shortcut: hsn
+  #   categories: [news]
+  #   weight: 2
+  #   disabled: true
+  #   hoshimi:
+  #     category_filter: news
+  #     search_mode: "hybrid"
+  #     vector_weight: 0.3
+  #     embedding_model: "intfloat/multilingual-e5-small"
+  #     milvus_uri: "./data/hoshimi.milvus"
+  #     top_k: 20
+  #     similarity_threshold: 0.6
+  #     embedding_dim: 384
+
+  # - name: hoshimi music
+  #   engine: hoshimi
+  #   shortcut: hsm
+  #   categories: [music]
+  #   weight: 2
+  #   disabled: true
+  #   hoshimi:
+  #     category_filter: music
+  #     search_mode: "hybrid"
+  #     vector_weight: 0.3
+  #     embedding_model: "intfloat/multilingual-e5-small"
+  #     milvus_uri: "./data/hoshimi.milvus"
+  #     top_k: 20
+  #     similarity_threshold: 0.6
+  #     embedding_dim: 384
 
   - name: google scholar
     engine: google_scholar

@@ -47,6 +47,11 @@ dependencies = [
     "isodate==0.7.2",
     "whitenoise==6.12.0",
     "typing-extensions==4.15.0",
+    # Hoshimi vector search dependencies
+    "pymilvus>=2.4.0",
+    "milvus-lite>=2.4.0",
+    "sentence-transformers>=2.7.0",  # required for Qwen3-Embedding support
+    "setuptools<70",  # required by milvus-lite for pkg_resources
 ]
 
 [project.optional-dependencies]

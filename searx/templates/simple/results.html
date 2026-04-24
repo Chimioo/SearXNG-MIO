@@ -20,9 +20,25 @@
 
 <div id="results" class="{{ only_template }}">
 
-  {%- if answers -%}
-    {%- include 'simple/elements/answers.html' -%}
-  {%- endif %}
+    {%- if ai_available -%}
+    <div id="ai-summary-container">
+        <div class="ai-summary-header">
+            <span class="ai-title">AI Overview</span>
+        </div>
+        <div id="ai-summary-content" class="ai-summary-content">
+            <div class="ai-summary-loading">
+                <span class="ai-dot"></span>
+                <span class="ai-dot"></span>
+                <span class="ai-dot"></span>
+            </div>
+            <div class="ai-summary-text"></div>
+        </div>
+    </div>
+    {%- endif %}
+
+    {%- if answers -%}
+        {%- include 'simple/elements/answers.html' -%}
+    {%- endif %}
 
     <div id="sidebar">
 

@@ -17,6 +17,30 @@ general:
   # open_metrics: <password>
   open_metrics: ''
 
+hoshimi:
+  # Minimum number of cached results before falling back to network search
+  fallback_threshold: 5
+  # Number of days before cached results expire (30-day half-life for ranking)
+  expire_days: 30
+
+ai:
+  # Enable AI search result summarization
+  enabled: true
+  # OpenAI compatible API key
+  api_key: "{{env DEEPSEEK_API_KEY}}"
+  # OpenAI compatible API base URL (e.g., https://api.openai.com/v1)
+  api_base: "https://api.deepseek.com/v1"
+  # Model name (e.g., gpt-3.5-turbo, gpt-4, claude-3-sonnet)
+  model: "deepseek-chat"
+  # Maximum tokens in response
+  max_tokens: 1000
+  # Temperature for response generation (0-1)
+  temperature: 0.7
+  # Request timeout in seconds
+  timeout: 30
+  # Number of search results to feed to AI (1-20)
+  max_results: 20
+
 brand:
   docs_url: https://docs.searxng.org/
   public_instances: https://searx.space
@@ -258,8 +282,10 @@ plugins:
   searx.plugins.tracker_url_remover.SXNGPlugin:
     active: true
 
-  searx.plugins.hoshimi_collector.SXNGPlugin:
+  searx.plugins.hoshimi_cache.SXNGPlugin:
     active: true
+
+  
 
 
 # Configuration of the "Hostnames plugin":
@@ -1066,103 +1092,7 @@ engines:
     engine: google_videos
     shortcut: gov
 
-  # Hoshimi - Vector-based cached search engine
-  # Option 1: Single instance with multiple categories (searches all categories)
-  - name: hoshimi
-    engine: hoshimi
-    shortcut: hs
-    categories: [general, images, videos, news, music]
-    weight: 2
-    disabled: false
-    # Hoshimi vector search configuration
-    hoshimi:
-      # Search mode: "vector" (semantic), "keyword" (text match), or "hybrid" (both combined)
-      search_mode: "hybrid"
-      # For hybrid mode: weight for vector score (0.7 = 70% vector, 30% keyword)
-      vector_weight: 0.3
-      # Embedding model for vectorization
-      embedding_model: "intfloat/multilingual-e5-small"
-      # Milvus Lite database path
-      milvus_uri: "./data/hoshimi.milvus"
-      # Maximum results to return per search
-      top_k: 20
-      # Minimum similarity threshold (0-1) for vector search
-      similarity_threshold: 0.6
-      # Embedding dimension (auto-detected from model, but can override)
-      embedding_dim: 384
-      # Source engine weights (higher = more influential in ranking)
-      source_weights:
-        google: 3
-        bing: 2
-        duckduckgo: 3
-        brave: 3
-        startpage: 3
-        # Default weight for engines not listed: 1
-
-  # Option 2: Multiple instances for specific categories (uncomment to use)
-  # - name: hoshimi images
-  #   engine: hoshimi
-  #   shortcut: hsi
-  #   categories: [images]
-  #   weight: 2
-  #   disabled: true
-  #   hoshimi:
-  #     category_filter: images
-  #     search_mode: "hybrid"
-  #     vector_weight: 0.3
-  #     embedding_model: "intfloat/multilingual-e5-small"
-  #     milvus_uri: "./data/hoshimi.milvus"
-  #     top_k: 20
-  #     similarity_threshold: 0.6
-  #     embedding_dim: 384
-
-  # - name: hoshimi videos
-  #   engine: hoshimi
-  #   shortcut: hsv
-  #   categories: [videos]
-  #   weight: 2
-  #   disabled: true
-  #   hoshimi:
-  #     category_filter: videos
-  #     search_mode: "hybrid"
-  #     vector_weight: 0.3
-  #     embedding_model: "intfloat/multilingual-e5-small"
-  #     milvus_uri: "./data/hoshimi.milvus"
-  #     top_k: 20
-  #     similarity_threshold: 0.6
-  #     embedding_dim: 384
-
-  # - name: hoshimi news
-  #   engine: hoshimi
-  #   shortcut: hsn
-  #   categories: [news]
-  #   weight: 2
-  #   disabled: true
-  #   hoshimi:
-  #     category_filter: news
-  #     search_mode: "hybrid"
-  #     vector_weight: 0.3
-  #     embedding_model: "intfloat/multilingual-e5-small"
-  #     milvus_uri: "./data/hoshimi.milvus"
-  #     top_k: 20
-  #     similarity_threshold: 0.6
-  #     embedding_dim: 384
-
-  # - name: hoshimi music
-  #   engine: hoshimi
-  #   shortcut: hsm
-  #   categories: [music]
-  #   weight: 2
-  #   disabled: true
-  #   hoshimi:
-  #     category_filter: music
-  #     search_mode: "hybrid"
-  #     vector_weight: 0.3
-  #     embedding_model: "intfloat/multilingual-e5-small"
-  #     milvus_uri: "./data/hoshimi.milvus"
-  #     top_k: 20
-  #     similarity_threshold: 0.6
-  #     embedding_dim: 384
+  
 
   - name: google scholar
     engine: google_scholar
@@ -1231,6 +1161,76 @@ engines:
     shortcut: crates
     disabled: true
     timeout: 6.0
+
+  - name: hoshimi
+    engine: hoshimi
+    shortcut: hm
+    categories: [general]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi images
+    engine: hoshimi
+    shortcut: hmi
+    categories: [images]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi videos
+    engine: hoshimi
+    shortcut: hmv
+    categories: [videos]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi news
+    engine: hoshimi
+    shortcut: hmn
+    categories: [news]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi map
+    engine: hoshimi
+    shortcut: hmm
+    categories: [map]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi music
+    engine: hoshimi
+    shortcut: hmu
+    categories: [music]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi it
+    engine: hoshimi
+    shortcut: hmit
+    categories: [it]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi science
+    engine: hoshimi
+    shortcut: hms
+    categories: [science]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi files
+    engine: hoshimi
+    shortcut: hmf
+    categories: [files]
+    timeout: 3.0
+    weight: 1
+
+  - name: hoshimi social media
+    engine: hoshimi
+    shortcut: hmsm
+    categories: [social media]
+    timeout: 3.0
+    weight: 1
 
   - name: hoogle
     engine: xpath

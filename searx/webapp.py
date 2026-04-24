@@ -96,7 +96,7 @@ from searx.preferences import (
 )
 import searx.answerers
 import searx.plugins
-
+from searx.ai_summarizer import get_summarizer, is_available
 
 from searx.metrics import get_engines_stats, get_engine_errors, get_reliabilities, histogram, counter, openmetrics
 from searx.flaskfix import patch_application
@@ -616,6 +616,28 @@ def rss_xsl():
     )
 
 
+@app.route('/ai_summarize', methods=['POST'])
+def ai_summarize():
+    """AI summarization endpoint with streaming support"""
+    if not is_available():
+        return jsonify({'error': 'AI summarizer is not available'}), 400
+
+    data = sxng_request.get_json()
+    if not data or 'q' not in data or 'results' not in data:
+        return jsonify({'error': 'Missing query or results'}), 400
+
+    query = data['q']
+    results = data['results']
+    language = data.get('language') or sxng_request.preferences.get_value('language')
+
+    def generate():
+        summarizer = get_summarizer()
+        for chunk in summarizer.summarize_stream(query, results, language):
+            yield chunk
+
+    return Response(generate(), mimetype='text/plain')
+
+
 @app.route('/search', methods=['GET', 'POST'])
 def search():
     """Search query in q and return results.
@@ -780,7 +802,8 @@ def search():
         ),
         timeout_limit = sxng_request.form.get('timeout_limit', None),
         timings = engine_timings_pairs,
-        max_response_time = max_response_time
+        max_response_time = max_response_time,
+        ai_available = is_available()
         # fmt: on
     )
 
